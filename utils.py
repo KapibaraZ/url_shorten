@@ -5,7 +5,7 @@ from hashlib import blake2b
 
 from flask import jsonify
 
-REGEX = re.compile(
+REGEX_URL = re.compile(
         r'^(?:http)s?://'
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
         r'localhost|'
@@ -18,7 +18,7 @@ shortened = {}
 
 
 def url_valid(url):
-    return re.match(REGEX, url) is not None
+    return not isinstance(url, str) and re.match(REGEX_URL, url) is not None
 
 
 def shorten(url):
@@ -32,7 +32,15 @@ def shorten(url):
     return b64.decode('utf-8')
 
 
+# TODO def bad_request(name_message, text_message, code):
 def bad_request(message, code):
     response = jsonify({'message': message})
     response.status_code = code
     return response
+
+
+def short_code_valid(shortcode):
+    return (
+        re.match(r'[a-zA-Z0-9_]', shortcode) and
+        len(shortcode) == DIGEST_SIZE
+    )
