@@ -18,7 +18,7 @@ shortened = {}
 
 
 def url_valid(url):
-    return not isinstance(url, str) and re.match(REGEX_URL, url) is not None
+    return isinstance(url, str) and re.match(REGEX_URL, url) is not None
 
 
 def shorten(url):

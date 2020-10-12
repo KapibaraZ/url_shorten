@@ -33,7 +33,7 @@ def shorten_url():
         url = 'http://' + url
 
     if not url_valid(url):
-        return bad_request('Provided url is not valid.', 401)
+        return bad_request('Provided url is not valid.', 400)
 
     if request.method == 'POST':
         json = request.json
@@ -96,7 +96,3 @@ def get_stats(shortcode):
         return jsonify({"created": sc.created,
                         "lastRedirect": sc.last_redirect,
                         "redirectCount": sc.redirect_count}), 200
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
