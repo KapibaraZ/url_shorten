@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import sqlalchemy
 from flask import jsonify, request
 from werkzeug.utils import redirect
 
@@ -27,17 +28,12 @@ def shorten_url():
     if 'url' not in request.json:
         return bad_request('Url parameter not found.', 400)
 
-    url = request.json['url']
-
-    if url[:4] != 'http':
-        url = 'http://' + url
-
-    if not url_valid(url):
-        return bad_request('Provided url is not valid.', 400)
-
     if request.method == 'POST':
         json = request.json
         url = json['url']
+        if not url_valid(url):
+            return bad_request('Provided url is not valid.', 400)
+
         if 'shortcode' in json:
             try:
                 sc = Shortcodes.query.filter(
@@ -59,8 +55,9 @@ def shorten_url():
         try:
             db.session.add(sc)
             db.session.commit()
-        #     better add detail exception
-        except Exception:
+        except sqlalchemy.exc.IntegrityError:
+            return bad_request('url already exists', 400)
+        except Exception as err:
             return jsonify({'error': 'Service is temporarily unavailable'}), 500
         else:
             return jsonify({'shortened_url': shortcode}), 201
@@ -68,6 +65,8 @@ def shorten_url():
 
 @app.route('/<shortcode>', methods=['GET'])
 def shorten_url_get(shortcode):
+    if not short_code_valid(shortcode):
+        return bad_request('Shortcode invalide', 412)
     try:
         sc = Shortcodes.query.filter(Shortcodes.shortcode == shortcode).first()
         if not sc:
@@ -84,9 +83,10 @@ def shorten_url_get(shortcode):
 
 @app.route('/<shortcode>/stats', methods=['GET'])
 def get_stats(shortcode):
+    if not short_code_valid(shortcode):
+        return bad_request('Shortcode invalide', 412)
     try:
         sc = Shortcodes.query.filter(Shortcodes.shortcode == shortcode).first()
-        #     better add detail exception
     except Exception:
         return jsonify({'error': 'Service is temporarily unavailable'}), 500
     else:

@@ -40,6 +40,7 @@ def bad_request(message, code):
 
 
 def short_code_valid(shortcode):
+    # TODO size !!!
     return (
         re.match(r'[a-zA-Z0-9_]', shortcode) and
         len(shortcode) == DIGEST_SIZE
