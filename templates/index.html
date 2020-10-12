@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>{{ url }}</h1>
+    <form action="." method="post">
+        {{ form.original }}
+        {{ form.shorter_url }}
+        <input type="text" name="csrf_token" value="{{ csrf_token() }}" hidden>
+        {{ form.button }}
+    </form>
+</body>
+</html>
+
+
